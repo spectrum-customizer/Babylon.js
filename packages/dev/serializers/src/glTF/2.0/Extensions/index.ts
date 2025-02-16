@@ -14,3 +14,4 @@ export * from "./KHR_materials_transmission";
 export * from "./KHR_materials_unlit";
 export * from "./KHR_materials_volume";
 export * from "./KHR_texture_transform";
+export * from "./KHR_materials_variants";
