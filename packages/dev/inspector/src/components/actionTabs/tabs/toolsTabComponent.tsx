@@ -248,7 +248,7 @@ export class ToolsTabComponent extends PaneComponent {
         filesInputAnimation.loadFiles(event);
     }
 
-    exportGLTF() {
+    exportGLTF(isBinary: boolean) {
         const scene = this.props.scene;
         this._isExportingGltf = true;
         this.forceUpdate();
@@ -286,18 +286,31 @@ export class ToolsTabComponent extends PaneComponent {
 
             return true;
         };
-
-        GLTF2Export.GLBAsync(scene, "scene", { shouldExportNode: (node) => shouldExport(node) })
-            .then((glb: GLTFData) => {
-                this._isExportingGltf = false;
-                this.forceUpdate();
-                glb.downloadFiles();
-            })
-            .catch((reason) => {
-                Logger.Error(`Failed to export GLB: ${reason}`);
-                this._isExportingGltf = false;
-                this.forceUpdate();
-            });
+        if (isBinary) {
+            GLTF2Export.GLBAsync(scene, "scene", { shouldExportNode: (node) => shouldExport(node) })
+                .then((glb: GLTFData) => {
+                    this._isExportingGltf = false;
+                    this.forceUpdate();
+                    glb.downloadFiles();
+                })
+                .catch((reason) => {
+                    Logger.Error(`Failed to export GLB: ${reason}`);
+                    this._isExportingGltf = false;
+                    this.forceUpdate();
+                });
+        } else {
+            GLTF2Export.GLTFAsync(scene, "scene", { shouldExportNode: (node) => shouldExport(node) })
+                .then((gltf: GLTFData) => {
+                    this._isExportingGltf = false;
+                    this.forceUpdate();
+                    gltf.downloadFiles();
+                })
+                .catch((reason) => {
+                    Logger.Error(`Failed to export GLB: ${reason}`);
+                    this._isExportingGltf = false;
+                    this.forceUpdate();
+                });
+        }
     }
 
     exportBabylon() {
@@ -513,7 +526,8 @@ export class ToolsTabComponent extends PaneComponent {
                                 isSelected={() => this._gltfExportOptions.exportLights}
                                 onSelect={(value) => (this._gltfExportOptions.exportLights = value)}
                             />
-                            <ButtonLineComponent label="Export to GLB" onClick={() => this.exportGLTF()} />
+                            <ButtonLineComponent label="Export to GLB" onClick={() => this.exportGLTF(true)} />
+                            <ButtonLineComponent label="Export to GLTF" onClick={() => this.exportGLTF(false)} />
                         </>
                     )}
                 </LineContainerComponent>

@@ -1,9 +1,11 @@
 import type { IGLTFExporterExtensionV2 } from "../glTFExporterExtension";
 import { GLTFExporter } from "../glTFExporter";
 import type { BufferManager } from "../bufferManager";
-import type { IMeshPrimitive, IAccessor, INode, IKHRMaterialVariants_Variant, IKHRMaterialVariants_Variants } from "babylonjs-gltf2interface";
+import type { INode, IKHRMaterialVariants_Variant, IKHRMaterialVariants_Variants } from "babylonjs-gltf2interface";
+import { ImageMimeType } from "babylonjs-gltf2interface";
 import type { Nullable } from "core/types";
 import type { Node } from "core/node";
+import type { PBRBaseMaterial } from "core/Materials/PBR/pbrBaseMaterial";
 
 /** name of the extension */
 const NAME = "KHR_materials_variants";
@@ -37,9 +39,9 @@ export class KHR_materials_variants implements IGLTFExporterExtensionV2 {
 
     public dispose() {}
 
-    public postExportMeshPrimitive?(primitive: IMeshPrimitive, bufferManager: BufferManager, accessors: IAccessor[]): void {
-        this._wasUsed = true;
-    }
+    // public postExportMeshPrimitive?(primitive: IMeshPrimitive, bufferManager: BufferManager, accessors: IAccessor[]): void {
+    //     this._wasUsed = true;
+    // }
 
     private _findRootNode(node: Node): Nullable<Node> {
         let current: Nullable<Node> = node;
@@ -51,6 +53,11 @@ export class KHR_materials_variants implements IGLTFExporterExtensionV2 {
         }
         return null;
     }
+
+    private _exportMaterialAsync = async (babylonPBRMaterial: PBRBaseMaterial) => {
+        const index = await this._exporter._materialExporter.exportPBRMaterialAsync(babylonPBRMaterial, ImageMimeType.PNG, true);
+        return index;
+    };
 
     public postExportNodeAsync(
         context: string,
@@ -109,6 +116,16 @@ export class KHR_materials_variants implements IGLTFExporterExtensionV2 {
                         gltf.extensions[NAME] = {
                             variants: this._variants, // Was incorrectly assigning the array directly to the extension
                         } as IKHRMaterialVariants_Variants; // Using the proper interface
+                        // Export all variant materials
+                        for (const variantName of variantNames) {
+                            const variantEntries = metadata.variants[variantName];
+                            for (const entry of variantEntries) {
+                                if (entry.material) {
+                                    this._exportMaterialAsync(entry.material);
+                                    // materialIndex = await this._exporter._materialExporter.exportPBRMaterialAsync(entry.material, ImageMimeType.PNG, true);
+                                }
+                            }
+                        }
                         this._wasUsed = true;
                     }
                 }
