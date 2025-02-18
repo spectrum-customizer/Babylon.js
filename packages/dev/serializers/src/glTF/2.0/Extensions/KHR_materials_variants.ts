@@ -111,19 +111,6 @@ export class KHR_materials_variants implements IGLTFExporterExtensionV2 {
         return materialIndex;
     };
 
-    // public postExportMaterialAdditionalTextures?(context: string, node: IMaterial, babylonMaterial: Material): BaseTexture[] {
-    //     const additionalTextures: BaseTexture[] = [];
-    //     const rootNode = this._findRootNode(babylonMaterial.getScene().meshes[0]);
-    //     if (!rootNode) {
-    //         return additionalTextures;
-    //     }
-    //     const metadata = rootNode._internalMetadata?.gltf?.[NAME];
-    //     if (!metadata) {
-    //         return additionalTextures;
-    //     }
-    //     return additionalTextures;
-    // }
-
     public postExportNodeAsync(
         context: string,
         node: Nullable<INode>,
@@ -158,26 +145,7 @@ export class KHR_materials_variants implements IGLTFExporterExtensionV2 {
                         if (!gltf.extensions) {
                             gltf.extensions = {};
                         }
-                        // add all the variants to the root node
-                        // the data in the gltf should look like this:
-                        // "extensions": {
-                        //     "KHR_materials_variants": {
-                        //       "variants": [
-                        //         {
-                        //           "name": "midnight"
-                        //         },
-                        //         {
-                        //           "name": "beach"
-                        //         },
-                        //         {
-                        //           "name": "street"
-                        //         }
-                        //       ]
-                        //     }
-                        //   },
-                        // const variants: IKHRMaterialVariants_Variants = {
-                        //     variants: this._variants,
-                        // };
+
                         gltf.extensions[NAME] = {
                             variants: this._variants, // Was incorrectly assigning the array directly to the extension
                         } as IKHRMaterialVariants_Variants; // Using the proper interface
