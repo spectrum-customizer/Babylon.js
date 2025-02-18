@@ -106,8 +106,9 @@ export class KHR_materials_variants implements IGLTFExporterExtensionV2 {
     }
 
     private _exportMaterialAsync = async (babylonPBRMaterial: PBRBaseMaterial) => {
-        const index = await this._exporter._materialExporter.exportPBRMaterialAsync(babylonPBRMaterial, ImageMimeType.PNG, true);
-        return index;
+        const materialIndex = await this._exporter._materialExporter.exportPBRMaterialAsync(babylonPBRMaterial, ImageMimeType.PNG, true);
+        this._exporter._materialMap.set(babylonPBRMaterial, materialIndex);
+        return materialIndex;
     };
 
     // public postExportMaterialAdditionalTextures?(context: string, node: IMaterial, babylonMaterial: Material): BaseTexture[] {
